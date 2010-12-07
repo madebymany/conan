@@ -1,0 +1,14 @@
+{
+  "staging": {
+    "something.amazonaws.com": {
+      "roles": ["app", "db", "staging"],
+      "alias": "staging"
+    }
+  },
+  "production": {
+    "something-else.amazonaws.com": {
+      "roles": ["app", "db", "production"],
+      "alias": "app1"
+    },
+  }
+}
