@@ -2,12 +2,11 @@ require "conan/capistrano"
 
 # Configuration
 
-# What is the application called?
-set :application, "yourappname" # TODO
+# Assume that we are deploying from the "origin" remote.
+set :repository, `git remote -v | grep 'origin.*fetch' | awk '{print $2}'`.chomp
 
-# Hopefully, your application name matches the repository name. If, not, change
-# this:
-set :repository, "git@github.com:madebymany/#{application}"
+# Hopefully, your application name matches the repository name.
+set :application, File.basename(repository, ".git")
 
 # Files and directories to persist between deployments:
 set :shared_paths, %w[
