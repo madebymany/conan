@@ -1,4 +1,5 @@
-server_config = JSON.parse(File.read(File.expand_path("../servers.json", __FILE__)))[stage] || {}
+require "json"
+server_config = JSON.parse(File.read("config/servers.json"))[stage] || {}
 roles = Hash.new{ |h,k| h[k] = [] }
 
 server_config.each do |s, c|

@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/madebymany/conan"
   s.summary     = "Conan The Deployer"
   s.description = "Set up a project to enable the configuration of servers using Chef via Capistrano."
+  s.add_dependency "json"
 
   s.executables  = ["conan"]
   s.files        = Dir["{bin,lib}/**/*"] + %w[README.md]

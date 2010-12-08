@@ -9,6 +9,6 @@
     "something-else.amazonaws.com": {
       "roles": ["app", "db", "production"],
       "alias": "app1"
-    },
+    }
   }
 }
