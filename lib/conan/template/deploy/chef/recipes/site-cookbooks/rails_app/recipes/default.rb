@@ -1,3 +1,8 @@
+gem_package "bundler" do
+  version "1.0.2"
+  action :install
+end
+
 node[:rails_app][:packages].each do |pkg_name|
   package pkg_name
 end
@@ -16,7 +21,7 @@ end
 
 bash "copy_authorized_keys" do
   code <<-END
-    cp /root/.ssh/authorized_keys #{node[:rails_app][:home]}/.ssh/authorized_keys
+    cp /home/ubuntu/.ssh/authorized_keys #{node[:rails_app][:home]}/.ssh/authorized_keys
     chown #{node[:rails_app][:user]} #{node[:rails_app][:home]}/.ssh/authorized_keys
   END
 end

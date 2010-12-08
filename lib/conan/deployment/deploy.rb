@@ -27,7 +27,7 @@ namespace :deploy do
 
   namespace :maintenance do
     task :start, :roles => :app do
-      run "cp #{current_path}/public/maintenance.html #{current_path}/public/system/maintenance.html"
+      run "cp #{current_path}/public/maintenance.html #{current_path}/public/system/maintenance.html || echo"
     end
 
     task :stop, :roles => :app do
