@@ -45,7 +45,7 @@ module Conan
       end
 
       def load_script(context, fragment)
-        code = File.read(File.expand_path("../deployment/#{fragment}.rb"))
+        code = File.read(File.expand_path("../deployment/#{fragment}.rb", __FILE__))
         context.instance_eval(code)
       end
     end
