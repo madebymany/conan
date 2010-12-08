@@ -1,5 +1,3 @@
-require "conan/capistrano"
-
 # Configuration
 
 # Assume that we are deploying from the "origin" remote.
@@ -24,8 +22,14 @@ set :stage, "staging" # default
 # * Deployment to production is always made from the last branch successfully
 #   deployed to staging.
 #
-add_stage :staging => "master"
-add_stage :production => "staging.last-successful-deploy"
+task :staging do
+  set :stage,  "staging"
+  set :branch, "master"
+end
+task :production do
+  set :stage,  "production"
+  set :branch, "staging.last-successful-deploy"
+end
 
 # You probably don't need to edit these
 default_run_options[:pty] = true
@@ -35,3 +39,6 @@ set :keep_releases, 5
 set :scm,           "git"
 set :user,          "rails"
 set :deploy_to,     "/mnt/#{application}"
+
+# Let Conan take over
+require "conan/capistrano"

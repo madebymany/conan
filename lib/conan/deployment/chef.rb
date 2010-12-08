@@ -1,3 +1,5 @@
+require "fileutils"
+
 namespace :chef do
   task :update_aliases do
     require "json"
@@ -17,6 +19,7 @@ namespace :chef do
       aliases[config["alias"]] = cache[host]
     end
 
+    FileUtils.mkdir_p File.dirname(cache_path)
     File.open(cache_path, "w") do |io|
       io << JSON.dump(cache)
     end
@@ -42,28 +45,30 @@ namespace :chef do
     server_config.each do |host, config|
       dna = {}
       (["base", "aliases"] + config["roles"]).each do |role|
-        dna = Conan::SmartHashMerge.merge(dna, JSON.parse(File.read("deploy/chef/dna/#{role}.json")))
+        path = "deploy/chef/dna/#{role}.json"
+        next unless File.exist?(path)
+        dna = Conan::SmartHashMerge.merge(dna, JSON.parse(File.read(path)))
       end
 
       File.open("deploy/chef/dna/generated.json", "w") do |io|
         io << JSON.dump(dna)
       end
 
-      system "rsync -Cavz --delete --exclude .git --exclude '.*.swp' --rsh='ssh -l root #{ssh_options}' deploy/chef/ #{host}:/etc/chef"
+      system "rsync -Cavz --rsync-path='sudo rsync' --delete --exclude .git --exclude '.*.swp' --rsh='ssh -l ubuntu #{ssh_options}' deploy/chef/ #{host}:/etc/chef"
     end
   end
 
   before "chef:bootstrap", "chef:rsync"
   task :bootstrap do
-    with_user "root" do
-      run "/etc/chef/bootstrap.sh"
+    with_user "ubuntu" do
+      run "sudo /etc/chef/bootstrap.sh"
     end
   end
 
   before "chef:update", "chef:bootstrap"
   task "update" do
-    with_user "root" do
-      run "chef-solo -j /etc/chef/dna/generated.json"
+    with_user "ubuntu" do
+      run "sudo chef-solo -j /etc/chef/dna/generated.json"
     end
   end
 end

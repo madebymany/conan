@@ -26,15 +26,6 @@ module Conan
         system %{git update-ref "refs/tags/#{dest}" #{sha1}}
         system %{git push --tags}
       end
-
-      def add_stage(hash)
-        hash.each do |name, branch|
-          task name do
-            set :stage, name
-            set :branch, branch
-          end
-        end
-      end
     end
 
     class <<self

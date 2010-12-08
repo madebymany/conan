@@ -10,20 +10,20 @@ function inform {
 
 function happy_ending {
   echo
-  echo -e "\e[31m✓ ${1}\e[0m"
+  echo -e "\e[32m✓ ${1}\e[0m"
   exit 0
 }
 
 function croak {
   echo
-  echo "\e[32m✗ $status failed. Aborting.\e[0m"
+  echo -e "\e[31m✗ $status failed. Aborting.\e[0m"
   exit 1
 }
 
-inform "Updating and upgrading OS packages"
-(apt-get update && apt-get upgrade) || croak
+inform "Updating package index"
+apt-get update || croak
 
-command -v chef-solo >/dev/null && \\
+command -v chef-solo >/dev/null && \
 happy_ending "Chef is already bootstrapped. Nothing more to do."
 
 inform "Setting up build environment"

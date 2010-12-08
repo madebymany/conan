@@ -1,5 +1,6 @@
 require "json"
-server_config = JSON.parse(File.read("config/servers.json"))[stage] || {}
+set :server_config, JSON.parse(File.read("config/servers.json"))[stage] || {}
+
 roles = Hash.new{ |h,k| h[k] = [] }
 
 server_config.each do |s, c|

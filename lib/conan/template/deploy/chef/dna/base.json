@@ -1,5 +1,7 @@
 {
-  "railsapp": {
+  "rails_app": {
+    "user": "rails",
+    "name": "TODO",
     "home": "/mnt/TODO",
     "packages": [
       "git-core"
