@@ -31,6 +31,9 @@
   "apache": {
     "listen_ports": ["80"]
   },
+  "passenger": {
+    "version": "2.2.14"
+  },
   "recipes": [
     "hosts"
   ]
