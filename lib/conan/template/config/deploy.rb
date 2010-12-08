@@ -26,3 +26,12 @@ set :stage, "staging" # default
 #
 add_stage :staging => "master"
 add_stage :production => "staging.last-successful-deploy"
+
+# You probably don't need to edit these
+default_run_options[:pty] = true
+set :use_sudo,      false
+set :deploy_via,    :remote_cache
+set :keep_releases, 5
+set :scm,           "git"
+set :user,          "rails"
+set :deploy_to,     "/mnt/#{application}"
