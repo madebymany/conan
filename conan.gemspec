@@ -3,7 +3,7 @@ $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = "conan"
-  s.version     = 0.1.0
+  s.version     = "0.1.0"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Paul Battley"]
   s.email       = ["pbattley@gmail.com"]
