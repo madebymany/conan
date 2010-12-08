@@ -1,0 +1,16 @@
+production:
+  license_key: "<%= @node[:rails_app][:new_relic][:license_key] %>"
+  app_name: "<%= @node[:rails_app][:new_relic][:app_name] %>"
+  enabled: true
+  log_level: info
+  ssl: false
+  apdex_t: 0.5
+  capture_params: false
+  transaction_tracer:
+    enabled: true
+    transaction_threshold: apdex_f
+    record_sql: obfuscated
+    stack_trace_threshold: 0.500
+  error_collector:
+    enabled: true
+    capture_source: true

@@ -1,0 +1,10 @@
+{
+  "recipes": [
+    "apache2",
+    "apache2::mod_headers",
+    "apache2::mod_rewrite",
+    "passenger_apache2::mod_rails",
+    "mysql::client",
+    "railsapp",
+  ]
+}

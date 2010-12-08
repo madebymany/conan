@@ -15,6 +15,7 @@ Next, set up your deployment:
   deploy/chef/recipes/cookbooks - see https://github.com/opscode/cookbooks
 * Add your own recipes to deploy/chef/recipes/site-cookbooks
 * Set up your basic recipe configuration in deploy/chef/dna/base.json
+* Edit the TODOs in deploy/chef/dna/*.json
 * Add stage-/role-/server-specific files in deploy/chef/dna/*.json
 
 Finally, use Capistrano to configure your servers and deploy your application
