@@ -29,7 +29,7 @@ module Conan
         end
 
       group_line = "group :development do"
-      gem_line   = "  gem \"conan\""
+      gem_line   = "  gem \"conan\", :git => \"git@github.com:madebymany/conan.git\""
 
       if group_index = lines.index{ |l| l.include?(group_line) }
         lines.insert group_index+1, gem_line
