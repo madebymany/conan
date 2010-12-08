@@ -20,11 +20,11 @@ function croak {
   exit 1
 }
 
-inform "Updating package index"
-apt-get update || croak
-
 command -v chef-solo >/dev/null && \
 happy_ending "Chef is already bootstrapped. Nothing more to do."
+
+inform "Updating package index"
+apt-get update || croak
 
 inform "Setting up build environment"
 apt-get install -y build-essential || croak
