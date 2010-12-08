@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.summary     = "Conan The Deployer"
   s.description = "Set up a project to enable the configuration of servers using Chef via Capistrano."
 
+  s.executables  = ["conan"]
   s.files        = Dir["{bin,lib}/**/*"] + %w[README.md]
   s.require_path = 'lib'
 end
