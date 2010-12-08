@@ -5,6 +5,6 @@
     "apache2::mod_rewrite",
     "passenger_apache2::mod_rails",
     "mysql::client",
-    "railsapp",
+    "railsapp"
   ]
 }

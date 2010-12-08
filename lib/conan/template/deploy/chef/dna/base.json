@@ -2,14 +2,14 @@
   "railsapp": {
     "home": "/mnt/TODO",
     "packages": [
-      "git-core",
+      "git-core"
     ],
     "canonical_domain": "TODO e.g. www.example.com",
     "domain_aliases": [
-      "TODO e.g. example.com",
+      "TODO e.g. example.com"
     ],
     "redirections": [
-      "TODO e.g. ^example.com$",
+      "TODO e.g. ^example.com$"
     ],
     "database": {
       "host":      "TODO",
@@ -24,7 +24,7 @@
       "bucket_name":       "TODO",
       "access_key_id":     "TODO",
       "secret_access_key": "TODO"
-    },
+    }
   },
   "apache": {
     "listen_ports": ["80"]

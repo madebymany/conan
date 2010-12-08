@@ -5,6 +5,7 @@ require "test/unit"
 require "digest/sha1"
 require "fileutils"
 require "conan/initializer"
+require "json"
 
 class InitializerTest < Test::Unit::TestCase
 
@@ -71,5 +72,15 @@ class InitializerTest < Test::Unit::TestCase
     content = File.read(".gitignore")
     assert_match %r{^/existing/file$}, content
     assert_match %r{^/deploy/chef/dna/generated\.json$}, content
+  end
+
+  def test_should_have_valid_JSON_in_all_template_files
+    json_files = Dir["#{Conan::Initializer::TEMPLATE_PATH}/**/*.json"]
+    assert_not_equal [], json_files
+    json_files.each do |path|
+      assert_nothing_raised(path) do
+        JSON.parse(File.read(path))
+      end
+    end
   end
 end
