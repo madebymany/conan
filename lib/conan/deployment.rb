@@ -24,7 +24,7 @@ module Conan
       def git_tag(source, dest)
         sha1 = `git rev-parse "#{source}"`
         system %{git update-ref "refs/tags/#{dest}" #{sha1}}
-        system %{git push --tags}
+        system %{git push -f origin tag #{dest}}
       end
     end
 
