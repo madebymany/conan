@@ -3,6 +3,7 @@ require "fileutils"
 module Conan
   class Initializer
     TEMPLATE_PATH = File.expand_path("../template", __FILE__)
+    ShellCommandError = Class.new(RuntimeError)
 
     def self.run(where=Dir.pwd)
       new(where).run
@@ -16,6 +17,7 @@ module Conan
       copy_template
       add_gemfile
       add_gitignore
+      add_git_submodule
     end
 
   private
@@ -51,6 +53,11 @@ module Conan
       end
     end
 
+    def add_git_submodule
+      return unless File.directory?(".git")
+      sh "git submodule add git://github.com/madebymany/cookbooks.git deploy/chef/recipes/cookbooks >/dev/null 2>&1"
+    end
+
     def copy_template
       Dir.chdir(TEMPLATE_PATH) do
         Dir["**/*"].each do |source|
@@ -62,6 +69,10 @@ module Conan
           end
         end
       end
+    end
+
+    def sh(command)
+      system command or raise ShellCommandError, command
     end
   end
 end

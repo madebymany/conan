@@ -83,4 +83,10 @@ class InitializerTest < Test::Unit::TestCase
       end
     end
   end
+
+  def test_should_load_git_submodules
+    system "git init -q"
+    Conan::Initializer.run(".")
+    assert_not_equal [], Dir["deploy/chef/recipes/cookbooks/**/*"]
+  end
 end
