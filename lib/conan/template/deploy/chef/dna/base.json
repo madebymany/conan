@@ -4,7 +4,9 @@
     "name": "TODO",
     "home": "/mnt/TODO",
     "packages": [
-      "git-core"
+      "git-core",
+      "libxml2-dev",
+      "libxslt1-dev"
     ],
     "canonical_domain": "TODO e.g. www.example.com",
     "domain_aliases": [
