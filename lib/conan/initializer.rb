@@ -47,7 +47,10 @@ module Conan
     end
 
     def add_gitignore
+      gitignore = ".gitignore"
+      add_newline = File.exist?(gitignore) && File.read(gitignore).match(/[^\n]\Z/)
       File.open(".gitignore", "a") do |f|
+        f.puts if add_newline
         f.puts "/deploy/chef/dna/generated.json"
         f.puts "/deploy/chef/dna/aliases.json"
       end
