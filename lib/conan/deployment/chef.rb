@@ -54,7 +54,7 @@ namespace :chef do
         io << JSON.dump(dna)
       end
 
-      system "rsync -Cavz --rsync-path='sudo rsync' --delete --exclude .git --exclude '.*.swp' --rsh='ssh -l ubuntu #{ssh_options}' deploy/chef/ #{host}:/etc/chef"
+      system "rsync -Caz --rsync-path='sudo rsync' --delete --exclude .git --exclude '.*.swp' --rsh='ssh -l ubuntu #{ssh_options}' deploy/chef/ #{host}:/etc/chef"
     end
   end
 
