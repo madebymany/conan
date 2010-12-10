@@ -26,33 +26,6 @@ class InitializerTest < Test::Unit::TestCase
     assert File.exist?("config/servers.json")
   end
 
-  def test_should_create_gemfile
-    Conan::Initializer.run(".")
-    assert File.exist?("Capfile")
-  end
-
-  def test_should_append_to_gemfile
-    File.open("Gemfile", "w") do |f|
-      f.puts "# existing content"
-    end
-    Conan::Initializer.run(".")
-    content = File.read("Gemfile")
-    assert_match /existing content/, content
-    assert_match /gem "conan"/, content
-  end
-
-  def test_should_add_to_development_group_gemfile
-    File.open("Gemfile", "w") do |f|
-      f.puts "group :development do"
-      f.puts "  gem \"existing\""
-      f.puts "end"
-    end
-    Conan::Initializer.run(".")
-    content = File.read("Gemfile")
-    assert_match /group :development do\s+gem "conan"/, content
-    assert_match /gem "existing"/, content
-  end
-
   def test_should_create_Capfile
     Conan::Initializer.run(".")
     assert File.exist?("Capfile")

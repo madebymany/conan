@@ -15,37 +15,11 @@ module Conan
 
     def run
       copy_template
-      add_gemfile
       add_gitignore
       add_git_submodule
     end
 
   private
-    def add_gemfile
-      path = File.join(@destination, "Gemfile")
-      lines =
-        if File.exist?(path)
-          File.read(path).split(/\n/)
-        else
-          []
-        end
-
-      group_line = "group :development do"
-      gem_line   = "  gem \"conan\", :git => \"git@github.com:madebymany/conan.git\""
-
-      if group_index = lines.index{ |l| l.include?(group_line) }
-        lines.insert group_index+1, gem_line
-      else
-        lines << group_line
-        lines << gem_line
-        lines << "end"
-      end
-
-      File.open(path, "w") do |f|
-        f << lines.join("\n")
-      end
-    end
-
     def add_gitignore
       gitignore = ".gitignore"
       add_newline = File.exist?(gitignore) && File.read(gitignore).match(/[^\n]\Z/)
