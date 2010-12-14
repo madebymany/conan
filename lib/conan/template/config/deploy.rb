@@ -12,9 +12,6 @@ set :shared_paths, %w[
   log
 ]
 
-# Deploy to staging if no branch is specified
-set :stage, "staging" # default
-
 # Your stages. The default assumes:
 #
 # * There is a staging and a production environment.
@@ -22,11 +19,15 @@ set :stage, "staging" # default
 # * Deployment to production is always made from the last branch successfully
 #   deployed to staging.
 #
-task :staging do
+
+stage :staging do; end
+stage :production do; end
+
+case ARGV.first.to_sym
+when :staging
   set :stage,  "staging"
   set :branch, "master"
-end
-task :production do
+when :production
   set :stage,  "production"
   set :branch, "staging.last-successful-deploy"
 end
