@@ -16,16 +16,11 @@
       "TODO e.g. ^example.com$"
     ],
     "database": {
-      "host":      "TODO",
-      "username":  "TODO",
-      "password":  "TODO",
       "adapter":   "mysql2",
-      "database":  "TODO",
       "encoding":  "utf8",
       "collation": "utf8_general_ci"
     },
     "s3": {
-      "bucket_name":       "TODO",
       "access_key_id":     "TODO",
       "secret_access_key": "TODO"
     }

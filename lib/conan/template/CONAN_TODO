@@ -4,7 +4,7 @@ Next, set up your deployment:
 
 * Edit config/servers.json to specify your stages, servers, and roles
 
-* Edit the TODOs in deploy/chef/dna/base.json
+* Edit the TODOs in deploy/chef/dna/*.json
 
 * Add stage-/role-/server-specific files in deploy/chef/dna/*.json
 

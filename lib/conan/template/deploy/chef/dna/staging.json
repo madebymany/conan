@@ -1,0 +1,14 @@
+{
+  "rails_app": {
+    "domain_aliases": [],
+    "database": {
+      "host":      "TODO",
+      "username":  "TODO",
+      "password":  "TODO",
+      "database":  "TODO"
+    },
+    "s3": {
+      "bucket_name":       "TODO"
+    }
+  }
+}
