@@ -20,8 +20,8 @@ set :shared_paths, %w[
 #   deployed to staging.
 #
 
-stage :staging do; end
-stage :production do; end
+task :staging do; end
+task :production do; end
 
 case ARGV.first.to_sym
 when :staging
