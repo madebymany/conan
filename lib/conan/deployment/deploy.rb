@@ -1,20 +1,7 @@
 require "json"
 set :server_config, JSON.parse(File.read("config/servers.json"))[stage] || {}
 
-roles = Hash.new{ |h,k| h[k] = [] }
-
-server_config.each do |s, c|
-  c["roles"].each do |r|
-    roles[r.to_sym] << s
-  end
-end
-
-roles.each do |r, ss|
-  next unless [:app, :db].include?(r)
-  ss.each_with_index do |s, i|
-    role r, s, :primary => (i == 0)
-  end
-end
+add_role :app, :db
 
 namespace :deploy do
   task :start, :roles => :app do; end
