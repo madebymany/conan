@@ -47,6 +47,11 @@ class SettingsTest < Test::Unit::TestCase
     assert_equal "minimal", settings["COOKBOOK_BRANCH"]
   end
 
+  def test_should_have_version
+    settings = Conan::Settings.new
+    assert_equal Conan::VERSION, settings["VERSION"]
+  end
+
   def test_should_store_arbitrary_values
     settings = Conan::Settings.new
     settings["FOO"] = "bar"

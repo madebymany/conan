@@ -1,9 +1,10 @@
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
+require "conan/version"
 
 Gem::Specification.new do |s|
   s.name        = "conan"
-  s.version     = "0.1.1"
+  s.version     = Conan::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Paul Battley"]
   s.email       = ["pbattley@gmail.com"]

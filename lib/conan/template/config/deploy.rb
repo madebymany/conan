@@ -42,4 +42,9 @@ set :user,          "rails"
 set :deploy_to,     "/mnt/#{application}"
 
 # Let Conan take over
+require "conan/version"
+unless Conan::VERSION == "{{VERSION}}"
+  $stderr.puts "Warning: Conan version mismatch."
+end
+
 require "conan/capistrano"
