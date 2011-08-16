@@ -22,34 +22,30 @@ class InitializerTest < Test::Unit::TestCase
   end
 
   def test_should_create_files_and_directories
-    Conan::Initializer.run(".")
+    Conan::Initializer.run(".", {})
     assert File.exist?("config/servers.json")
   end
 
-  def test_should_use_git_remote_to_fill_application_name_in_base_json
-    system "git init -q"
-    system "git remote add origin git@example.com:foobar.git"
-    Conan::Initializer.run(".")
+  def test_should_fill_application_name_in_base_json
+    Conan::Initializer.run(".", {"APPLICATION" => "foobar"})
     json = JSON.parse(File.read("deploy/chef/dna/base.json"))
     assert_equal "foobar", json["rails_app"]["name"]
     assert_equal "/mnt/foobar", json["rails_app"]["home"]
   end
 
-  def test_should_use_git_remote_to_fill_application_name_in_deploy_rb
-    system "git init -q"
-    system "git remote add origin git@example.com:foobar.git"
-    Conan::Initializer.run(".")
+  def test_should_fill_application_name_in_deploy_rb
+    Conan::Initializer.run(".", {"APPLICATION" => "foobar"})
     deploy_rb = File.read("config/deploy.rb")
     assert_match /set :application, "foobar"/, deploy_rb
   end
 
   def test_should_create_Capfile
-    Conan::Initializer.run(".")
+    Conan::Initializer.run(".", {})
     assert File.exist?("Capfile")
   end
 
   def test_should_create_gitignore
-    Conan::Initializer.run(".")
+    Conan::Initializer.run(".", {})
     content = File.read(".gitignore")
     assert_match %r{^/deploy/chef/dna/generated\.json$}, content
   end
@@ -58,7 +54,7 @@ class InitializerTest < Test::Unit::TestCase
     File.open(".gitignore", "w") do |f|
       f.puts "/existing/file"
     end
-    Conan::Initializer.run(".")
+    Conan::Initializer.run(".", {})
     content = File.read(".gitignore")
     assert_match %r{^/existing/file$}, content
     assert_match %r{^/deploy/chef/dna/generated\.json$}, content
@@ -68,7 +64,7 @@ class InitializerTest < Test::Unit::TestCase
     File.open(".gitignore", "w") do |f|
       f.print "/existing/file"
     end
-    Conan::Initializer.run(".")
+    Conan::Initializer.run(".", {})
     content = File.read(".gitignore")
     assert_match %r{^/existing/file$}, content
     assert_match %r{^/deploy/chef/dna/generated\.json$}, content
@@ -86,7 +82,7 @@ class InitializerTest < Test::Unit::TestCase
 
   def test_should_load_git_submodules
     system "git init -q"
-    Conan::Initializer.run(".")
+    Conan::Initializer.run(".", {})
     assert_not_equal [], Dir["deploy/chef/recipes/cookbooks/**/*"]
   end
 end

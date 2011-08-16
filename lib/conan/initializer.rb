@@ -5,12 +5,13 @@ module Conan
     TEMPLATE_PATH = File.expand_path("../template", __FILE__)
     ShellCommandError = Class.new(RuntimeError)
 
-    def self.run(where=Dir.pwd)
-      new(where).run
+    def self.run(where, settings)
+      new(where, settings).run
     end
 
-    def initialize(where)
+    def initialize(where, settings)
       @destination = File.expand_path(where)
+      @settings = settings
     end
 
     def run
@@ -20,13 +21,6 @@ module Conan
     end
 
   private
-    def git_repository_name
-      return "TODO" unless File.exist?(".git")
-      remote = File.basename(`git remote -v | grep -m1 origin | awk '{print $2}'`).strip
-      return "TODO" if remote.empty?
-      remote[/([^:\/]+)\.git$/, 1]
-    end
-
     def add_gitignore
       gitignore = ".gitignore"
       File.open(".gitignore", "a") do |f|
@@ -42,8 +36,6 @@ module Conan
     end
 
     def copy_template
-      interpolations = [["{{APPLICATION}}", git_repository_name]]
-
       Dir.chdir(TEMPLATE_PATH) do
         Dir["**/*"].each do |source|
           target = File.join(@destination, source)
@@ -51,9 +43,7 @@ module Conan
             FileUtils.mkdir_p target
           else
             content = File.read(source)
-            interpolations.each do |interpolation|
-              content.gsub! *interpolation
-            end
+            content.gsub!(/\{\{([A-Z_]+)\}\}/){ @settings[$1] || "TODO" }
             File.open(target, "w") do |f|
               f << content
             end

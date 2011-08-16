@@ -1,10 +1,55 @@
 #!/usr/bin/env ruby
 require "conan/initializer"
+require "conan/settings"
+require "conan/version"
+require "optparse"
+
+instructions = <<END
+
+Set up a Rails project for deployment and small-scale infrastructure management
+using Capistrano and Chef.
+
+Commands:
+    init    Initialise the project by setting up deployment and configuration
+            scripts.
+
+Options:
+END
+
+settings = Conan::Settings.new
+
+opts = ARGV.options{ |o|
+  o.banner << " command"
+  o.separator instructions
+  o.on("-c", "--cookbook-repository",
+       "Set the cookbook repository",
+       "Default: \"#{settings["COOKBOOK_REPOSITORY"]}\"") do |v|
+    settings["COOKBOOK_REPOSITORY"] = v
+  end
+  o.on("-b", "--cookbook-branch",
+       "Set the cookbook branch",
+       "Default: \"#{settings["COOKBOOK_BRANCH"]}\"") do |v|
+    settings["COOKBOOK_BRANCH"] = v
+  end
+  o.on("-v", "--version", "Show the software version") do
+    puts Conan::VERSION
+    exit
+  end
+  o.on("-h", "--help", "Show usage instructions") do
+    puts o
+    exit
+  end
+}
+
+opts.parse!
 
 case ARGV.first
 when "init"
-  Conan::Initializer.run
+  Conan::Initializer.run(Dir.pwd, settings)
   puts File.read("CONAN_TODO")
+when nil
+  puts opts
 else
-  raise "Unrecognised command: #{ARGV.first}"
+  $stderr.puts "Unrecognised command: #{ARGV.first}"
+  puts opts
 end
