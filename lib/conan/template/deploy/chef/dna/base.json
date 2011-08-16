@@ -1,8 +1,8 @@
 {
   "rails_app": {
     "user": "rails",
-    "name": "TODO",
-    "home": "/mnt/TODO",
+    "name": "{{APPLICATION}}",
+    "home": "/mnt/{{APPLICATION}}",
     "packages": [
       "git-core",
       "libxml2-dev",

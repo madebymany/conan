@@ -20,11 +20,17 @@ module Conan
     end
 
   private
+    def git_repository_name
+      return "TODO" unless File.exist?(".git")
+      remote = File.basename(`git remote -v | grep -m1 origin | awk '{print $2}'`).strip
+      return "TODO" if remote.empty?
+      remote[/([^:\/]+)\.git$/, 1]
+    end
+
     def add_gitignore
       gitignore = ".gitignore"
-      add_newline = File.exist?(gitignore) && File.read(gitignore).match(/[^\n]\Z/)
       File.open(".gitignore", "a") do |f|
-        f.puts if add_newline
+        f.puts
         f.puts "/deploy/chef/dna/generated.json"
         f.puts "/deploy/chef/dna/aliases.json"
       end
@@ -36,13 +42,22 @@ module Conan
     end
 
     def copy_template
+      interpolations = [["{{APPLICATION}}", git_repository_name]]
+
       Dir.chdir(TEMPLATE_PATH) do
         Dir["**/*"].each do |source|
           target = File.join(@destination, source)
           if File.directory?(source)
             FileUtils.mkdir_p target
           else
-            FileUtils.cp source, target
+            content = File.read(source)
+            interpolations.each do |interpolation|
+              content.gsub! *interpolation
+            end
+            File.open(target, "w") do |f|
+              f << content
+            end
+            File.chmod(File.stat(source).mode, target)
           end
         end
       end

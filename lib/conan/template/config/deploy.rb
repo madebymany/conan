@@ -1,10 +1,10 @@
 # Configuration
 
 # Assume that we are deploying from the "origin" remote.
-set :repository, `git remote -v | grep 'origin.*fetch' | awk '{print $2}'`.chomp
+set :repository, `git remote -v | grep -m1 origin | awk '{print $2}'`.chomp
 
 # Hopefully, your application name matches the repository name.
-set :application, File.basename(repository, ".git")
+set :application, "{{APPLICATION}}"
 
 # Files and directories to persist between deployments:
 set :shared_paths, %w[

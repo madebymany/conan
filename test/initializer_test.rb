@@ -26,6 +26,23 @@ class InitializerTest < Test::Unit::TestCase
     assert File.exist?("config/servers.json")
   end
 
+  def test_should_use_git_remote_to_fill_application_name_in_base_json
+    system "git init -q"
+    system "git remote add origin git@example.com:foobar.git"
+    Conan::Initializer.run(".")
+    json = JSON.parse(File.read("deploy/chef/dna/base.json"))
+    assert_equal "foobar", json["rails_app"]["name"]
+    assert_equal "/mnt/foobar", json["rails_app"]["home"]
+  end
+
+  def test_should_use_git_remote_to_fill_application_name_in_deploy_rb
+    system "git init -q"
+    system "git remote add origin git@example.com:foobar.git"
+    Conan::Initializer.run(".")
+    deploy_rb = File.read("config/deploy.rb")
+    assert_match /set :application, "foobar"/, deploy_rb
+  end
+
   def test_should_create_Capfile
     Conan::Initializer.run(".")
     assert File.exist?("Capfile")
