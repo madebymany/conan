@@ -16,11 +16,6 @@ module Conan
         sessions.clear
       end
 
-      def rake(command, options={})
-        path = options[:path] || current_path
-        run "cd #{path}; rake #{command} RAILS_ENV=#{rails_env}"
-      end
-
       def git_tag(source, dest)
         system "git fetch origin --tags"
         sha1 = `git rev-parse "#{source}"`
