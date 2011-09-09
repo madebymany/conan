@@ -45,7 +45,7 @@ Follow the instructions to complete configuration: this mainly consists of
 editing TODOs in newly added files. See the section *Roles and configuration*
 below for more details.
 
-To set up the server, use:
+To set up the server using Chef Solo, use:
 
     cap staging configure
 
