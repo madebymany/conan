@@ -40,6 +40,7 @@ set :keep_releases, 5
 set :scm,           "git"
 set :user,          "rails"
 set :deploy_to,     "/mnt/#{application}"
+set :ruby_version,  "1.9.2"
 
 # Let Conan take over
 require "conan/version"

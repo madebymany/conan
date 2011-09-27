@@ -61,7 +61,7 @@ namespace :chef do
   before "chef:bootstrap", "chef:rsync"
   task :bootstrap do
     with_user "ubuntu" do
-      run "sudo /etc/chef/recipes/cookbooks/bootstrap/bootstrap.sh"
+      run "sudo env INSTALL_RUBY=#{ruby_version} /etc/chef/recipes/cookbooks/bootstrap/bootstrap.sh"
     end
   end
 
