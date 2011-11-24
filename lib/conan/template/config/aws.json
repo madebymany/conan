@@ -1,0 +1,101 @@
+{
+  "staging": {
+    "key_pairs": { 
+     "keypair-name": {
+       "region": "us-east-1"
+     }
+    },
+    "ec2": { 
+       "app1": {
+        "region": "us-east-1",
+        "monitoring": false,
+        "roles": ["app", "db", "staging"],
+        "flavor_id": "m1.small",
+        "availability_zone": "us-east-1a",
+        "groups": ["default"]
+       }
+    },
+    "rds": { 
+      "db1": {
+        "region": "us-east-1",
+        "size": "small",
+        "backup_retention_period": "1",
+        "db_name": "app_production",
+        "password": ""
+      }
+    }, 
+    "security": { 
+       "ec2": { 
+         "default": {
+           "region": "us-east-1",
+           "ports": ["22", "80"]
+         }
+        },
+      "rds": { 
+        "default": {
+          "region": "us-east-1",
+          "ec2_security_groups": ["default"]
+        }
+      } 
+    }, 
+    "s3": { 
+      "bucket-name": { 
+        "region": "us-east-1"
+      }
+   } 
+  },
+  "production": {
+    "ec2": { 
+       "app1": {
+        "region": "us-east-1",
+        "monitoring": true,
+        "roles": ["app", "db", "production"],
+        "flavor_id": "small",
+        "availability_zone": "us-east-1a",
+        "groups": ["default"]
+       },
+       "app2": {
+        "region":, "us-east-1",
+        "roles": ["app", "db", "production"],
+        "flavor_id": "small",
+        "availability_zone": "us-east-1a",
+        "groups": ["default"]
+       }
+    },
+    "rds": { 
+      "db1": {
+        "region": "us-east-1",
+        "size": "small",
+        "backup_retention_period": "8",
+        "db_name": "app_production",
+        "password": ""
+      }
+    },
+    "elb": { 
+     "lb1": {
+        "region": "us-east-1",
+        "servers": ["app1", "app2"],
+        "https": "false"
+     }
+    },
+    "security": { 
+       "ec2": { 
+         "default": {
+           "region": "us-east-1",
+           "ports": ["22", "80"]
+         }
+        },
+      "rds": { 
+        "default": {
+          "region": "us-east-1",
+          "ec2_security_groups": ["default"]
+        }
+      } 
+    }, 
+    "s3": { 
+      "test": { 
+          "region": "us-east-1"
+      }
+   } 
+  }
+}

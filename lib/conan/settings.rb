@@ -19,7 +19,7 @@ module Conan
       {
         "APPLICATION"         => application_from_git_remote,
         "COOKBOOK_REPOSITORY" => "git://github.com/madebymany/cookbooks.git",
-        "COOKBOOK_BRANCH"     => "minimal",
+        "COOKBOOK_BRANCH"     => "master",
         "VERSION"             => Conan::VERSION,
       }
     end

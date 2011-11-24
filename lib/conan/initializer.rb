@@ -32,7 +32,7 @@ module Conan
 
     def add_git_submodule
       return unless File.directory?(".git")
-      sh "git submodule add git://github.com/madebymany/cookbooks.git deploy/chef/recipes/cookbooks >/dev/null 2>&1"
+      sh "git submodule add #{@settings["COOKBOOK_REPOSITORY"]} deploy/chef/recipes/cookbooks #{@settings["COOKBOOK_BRANCH"]} >/dev/null 2>&1"
     end
 
     def copy_template

@@ -1,6 +1,12 @@
 module Conan
   class Deployment
     module Helpers
+      def _cset(name, *args, &block)
+        unless exists?(name)
+          set(name, *args, &block)
+        end
+      end
+
       def with_user(new_user, &blk)
         old_user = user
         return if old_user == new_user
@@ -43,13 +49,19 @@ module Conan
 
     class <<self
       def define_tasks(context)
-        load_script(context, "deploy")
-        load_script(context, "chef")
-        load_script(context, "git")
+        load_script(context, "deployment/deploy")
+        load_script(context, "deployment/chef")
+
+        load_script(context, "deployment/git") 
+
+        load_script(context, "cloud/tasks")
+
+        #need to change to only compile for rails 3.1
+        load_script(context, "deployment/assets")
       end
 
       def load_script(context, fragment)
-        path = File.expand_path("../deployment/#{fragment}.rb", __FILE__)
+        path = File.expand_path("../#{fragment}.rb", __FILE__)
         code = File.read(path)
         context.instance_eval(code, path)
       end
