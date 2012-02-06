@@ -44,7 +44,7 @@ class SettingsTest < Test::Unit::TestCase
   def test_should_have_default_cookbooks
     settings = Conan::Settings.new
     assert_equal "git://github.com/madebymany/cookbooks.git", settings["COOKBOOK_REPOSITORY"]
-    assert_equal "minimal", settings["COOKBOOK_BRANCH"]
+    assert_equal "master", settings["COOKBOOK_BRANCH"]
   end
 
   def test_should_have_version
