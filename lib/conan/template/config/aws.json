@@ -55,7 +55,7 @@
         "groups": ["default"]
        },
        "app2": {
-        "region":, "us-east-1",
+        "region": "us-east-1",
         "roles": ["app", "db", "production"],
         "flavor_id": "small",
         "availability_zone": "us-east-1a",
