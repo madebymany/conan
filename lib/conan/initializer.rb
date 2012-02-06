@@ -1,4 +1,6 @@
 require "fileutils"
+require "rubygems"
+require "bundler/setup"
 
 module Conan
   class Initializer
