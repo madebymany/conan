@@ -2,8 +2,8 @@ require "conan/version"
 
 module Conan
   class Settings
-    def initialize
-      @settings = defaults
+    def initialize(settings = {})
+      @settings = defaults.merge(settings)
     end
 
     def []=(k, v)
