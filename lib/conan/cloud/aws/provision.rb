@@ -216,10 +216,15 @@ module AWS
 
       default_key_name = compute.key_pairs.all.first.name
 
-      default_params = { :availability_zone => default_availability_zone(region), :flavor_id => "m1.small", :monitoring => true,
-                         :image_id => default_image_id(region), :key_name => default_key_name } 
+      default_params = { :availability_zone => default_availability_zone(region), 
+                         :flavor_id => "m1.small", 
+                         :monitoring => true,
+                         :key_name => default_key_name, 
+                         :root_device_type => "instance-store" 
+                       }
 
       params = default_params.merge(new_conf)
+      params[:image_id] = default_image_id(region, params[:flavor_id], params[:root_device_type]) if params[:image_id].nil?
 
       tags  = {}
 
@@ -264,11 +269,16 @@ module AWS
         new_conf = config.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
         region = new_conf[:region] || "us-east-1"
         rds = Fog::AWS::RDS.new(:region => region)
-        default_params = {:allocated_storage => 20, :engine => 'mysql',
-                         :master_username => 'root', :password => 'password',
-                         :backup_retention_period => 8, :multi_az => false,
-                         :db_name =>"production", 
-                         :availability_zone => default_availability_zone(region), :flavor_id => 'db.m1.small'}
+        default_params = { :allocated_storage => 20, 
+                           :engine => 'mysql',
+                           :master_username => 'root', 
+                           :password => 'password',
+                           :backup_retention_period => 8, 
+                           :multi_az => false,
+                           :db_name =>"production", 
+                           :availability_zone => default_availability_zone(region), 
+                           :flavor_id => 'db.m1.small'
+                         }
         params = default_params.merge(new_conf)
 
         params[:id] = "#{@stage}-#{name}"
@@ -295,13 +305,15 @@ module AWS
     private
 
     def default_availability_zone(region)
-      "#{region}a"
+      #using availability zone b by default as a is often unavailable in us-east-1
+      "#{region}b"
     end
 
     def all_availability_zones(region)
       case region
       when "us-east-1"
-        ["us-east-1a", "us-east-1b", "us-east-1c"]
+        #not using availability zone us-east-1a as it often fails
+        ["us-east-1b", "us-east-1c"]
       when "us-west-1"
         ["us-west-1a", "us-west-1b", "us-west-1c"]
       when "eu-west-1"
@@ -313,19 +325,19 @@ module AWS
       end
     end
 
-    def default_image_id(region)
-      case region
-      when "us-east-1"
-        "ami-7000f019"
-      when "us-west-1"
-        "ami-19bfef5c"
-      when "eu-west-1"
-        "ami-a11e2ad5"
-      when "ap-northeast-1"
-        "ami-2492ec76"
-      when "ap-southeast-1"
-        "ami-2492ec76"
-      end
+    def default_image_id(region, flavor_id, root_device_type)
+      arch = ["m1.small", "t1.micro", "c1.medium"].include?(flavor_id) ? "32-bit" : "64-bit"
+
+      defaults = JSON.parse(File.read(File.expand_path(File.join(File.dirname(__FILE__), 'default_amis.json'))))
+      
+      region_defaults = defaults["ubuntu 11.10"][region]
+      raise "Invalid Region" if region_defaults.nil?
+      default_ami = region_defaults[arch][root_device_type]
+
+      raise "Default AMI not found for #{region} #{flavor_id} #{root_device_type}" if default_ami.nil?
+      default_ami
+
     end
   end
 end
+

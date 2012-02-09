@@ -32,6 +32,7 @@ module Conan
 
     def add_git_submodule
       return unless File.directory?(".git")
+      return if File.directory?("deploy/chef/recipes/cookbooks")
       sh "git submodule add #{@settings["COOKBOOK_REPOSITORY"]} deploy/chef/recipes/cookbooks #{@settings["COOKBOOK_BRANCH"]} >/dev/null 2>&1"
     end
 

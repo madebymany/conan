@@ -11,17 +11,21 @@
         "monitoring": false,
         "roles": ["app", "db", "staging"],
         "flavor_id": "m1.small",
-        "availability_zone": "us-east-1a",
+        "availability_zone": "us-east-1b",
         "groups": ["default"]
        }
     },
     "rds": { 
       "db1": {
         "region": "us-east-1",
-        "size": "small",
+        "flavor_id": "db.m1.small",
         "backup_retention_period": "1",
+        "multi_az": false,
+        "availability_zone": "us-east-1b",
+        "db_security_groups": ["default"],
         "db_name": "app_production",
-        "password": ""
+        "master_username": "root",
+        "password": "TODO"
       }
     }, 
     "security": { 
@@ -50,25 +54,30 @@
         "region": "us-east-1",
         "monitoring": true,
         "roles": ["app", "db", "production"],
-        "flavor_id": "small",
-        "availability_zone": "us-east-1a",
+        "flavor_id": "m1.small",
+        "availability_zone": "us-east-1b",
         "groups": ["default"]
        },
        "app2": {
-        "region":, "us-east-1",
+        "region": "us-east-1",
         "roles": ["app", "db", "production"],
-        "flavor_id": "small",
-        "availability_zone": "us-east-1a",
+        "flavor_id": "m1.small",
+        "availability_zone": "us-east-1b",
         "groups": ["default"]
        }
     },
     "rds": { 
       "db1": {
         "region": "us-east-1",
-        "size": "small",
+        "multi_az": true,
+        "flavor_id": "db.m1.small",
+        "allocated_storage": 100,
+        "availability_zone": "us-east-1b",
+        "db_security_groups": ["default"],
         "backup_retention_period": "8",
         "db_name": "app_production",
-        "password": ""
+        "master_username": "root",
+        "password": "TODO"
       }
     },
     "elb": { 

@@ -57,10 +57,15 @@ module Conan
         load_script(context, "cloud/tasks")
 
         #need to change to only compile for rails 3.1
-        rails_v = `bundle exec rails -v`.chomp.split(' ').last
-        if Gem::Version.new(rails_v) > Gem::Version.new('3.1.0')
-          load_script(context, "deployment/assets")
+        begin
+          rails_v = `bundle exec rails -v`.chomp.split(' ').last
+          if Gem::Version.new(rails_v) > Gem::Version.new('3.1.0')
+            load_script(context, "deployment/assets")
+          end
+        rescue
+          #not a rails or 3.1 app or bundle failed
         end
+
       end
 
       def load_script(context, fragment)

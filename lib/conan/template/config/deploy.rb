@@ -42,6 +42,8 @@ set :user,          "rails"
 set :deploy_to,     "/mnt/#{application}"
 set :ruby_version,  "1.9.2"
 
+ssh_options[:forward_agent] = true
+
 # Let Conan take over
 require "conan/version"
 unless Conan::VERSION == "{{VERSION}}"

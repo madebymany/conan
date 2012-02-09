@@ -1,6 +1,24 @@
 Conan the Deployer has set up your project.
 
-Next, set up your deployment:
+Optional: if you are use AWS you can provision instances from a json file
+
+* Add or edit ~/.fog to include your AWS access and secret key: It should look something like:
+:default:
+  :aws_access_key_id: AithisismykeyYxDr 
+  :aws_secret_access_key: PeT/thisismysecretaccesskey9HyE
+
+* Edit config/aws.json to describe your AWS environments
+
+Now you can use capistrano to provision your environment
+
+* cap staging aws:provision
+
+Then you can write out the config/servers.json which will be used in the next steps
+
+* cap staging aws:write_config
+(this will actually write out all environments so you may need to re-run it if you provision a new environment)
+
+Next, set up your deployment or if you are not using AWS start her:
 
 * Edit config/servers.json to specify your stages, servers, and roles
 
