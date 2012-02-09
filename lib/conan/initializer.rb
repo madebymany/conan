@@ -1,4 +1,6 @@
 require "fileutils"
+require "rubygems"
+require "bundler/setup"
 
 module Conan
   class Initializer
@@ -11,7 +13,7 @@ module Conan
 
     def initialize(where, settings)
       @destination = File.expand_path(where)
-      @settings = settings
+      @settings = Conan::Settings.new(settings)
     end
 
     def run

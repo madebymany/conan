@@ -104,6 +104,7 @@ In this scenario, the configuration for the staging server will be produced by m
 * `db.json`
 * `staging.json`
 
+
 Furthermore, this server will have the `app` and `db` roles in Capistrano, with
 the usual meanings: the application will be deployed on this server, and the
 database migrations will be run.
