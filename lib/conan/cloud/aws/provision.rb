@@ -59,6 +59,10 @@ module AWS
         security_groups["rds"].each do |name, conf|
           create_rds_security_group(name, conf)
         end unless security_groups["rds"].nil?
+
+        security_groups["elasticache"].each do |name, conf|
+          create_elasticache_security_group(name, conf)
+        end unless security_groups["elasticache"].nil?
       end
 
       @aws_config.each do |type, resources|
@@ -78,6 +82,11 @@ module AWS
          when "elb"
            resources.each do |name,conf|
              create_elb(name, conf)
+           end
+         end
+         when "elasticache"
+           resources.each do |name,conf|
+             create_elasticache_cluster(name,conf)
            end
          end
       end
@@ -149,6 +158,37 @@ module AWS
           end
         else
           puts "RDS Security Group #{rdssg_name} already exists. Skipping"
+        end
+
+      end
+    end
+
+    def create_elasticache_security_group(name, config = {})
+      unless Fog.mocking?
+        new_conf = config.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+        region = new_conf[:region] || "us-east-1"
+        elasticache = Fog::AWS::Elasticache.new(:region => region)
+
+        cache_sg_name = "#{@stage}-elasticache-#{name}"
+
+        sg_exists = false
+        body = elasticache.describe_cache_security_groups.body
+        body['CacheSecurityGroups'].any? do |group|
+          group['CacheSecurityGroupName'] == cache_sg_name
+        end
+
+        unless sg_exists
+          puts "Creating Elasticache Security Group #{cache_sg_name}"
+          body = AWS[:elasticache].create_cache_security_group(cache_sg_name, "#{cache_sg_name} ElastiCache Security Group for #{@stage}").body
+          new_conf[:ec2_security_groups].each do |ec2_group|
+            compute = Fog::Compute.new(:provider => :aws, :region => region)
+            sg_name = "#{@stage}-#{ec2_group}"
+            sg = compute.security_groups.get(sg_name)
+            body = elasticache.authorize_cache_security_group_ingress(
+              cache_sg_name, sg.name, sg.owner_id).body
+          end
+        else
+          puts "Elasticache Security Group #{cache_sg_name} already exists. Skipping"
         end
 
       end
@@ -295,10 +335,48 @@ module AWS
           puts "Creating RDS Server #{params[:id]}"
           server = rds.servers.create(params)
         else
-          puts "RDS Server #{params[:id]} aready exists. Skipping"
+          puts "RDS Server #{params[:id]} already exists. Skipping"
         end
       else
         puts "Fog is mocking. Can't test with RDS Servers. Skipping"
+      end
+    end
+
+    def create_elasticache_cluster(name, config = {})
+      unless Fog.mocking?
+        new_conf = config.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+        region = new_conf[:region] || "us-east-1"
+
+        elasticache = Fog::AWS::Elasticache.new(:region => region)
+
+        default_params = { :node_type=> "cache.m1.large", 
+                           :nodes => 1,
+                           :port=> 11211, 
+                           :availability_zone => default_availability_zone(region) 
+                         }
+
+        params = default_params.merge(new_conf)
+
+        if new_conf[:security_groups] and new_conf[:security_groups].size > 0
+          params[:security_groups] = new_conf[:security_groups].collect { |g| "#{@stage}-elasticache-#{g}" }
+        else
+          params[:security_groups] = ["#{@stage}-elasticache-default"]
+        end
+
+        cluster_name = "#{@stage}-#{name}"
+
+        body = AWS[:elasticache].describe_cache_clusters.body
+        exists = body['CacheClusters'].any? do |cluster|
+          cluster['CacheClusterId'] == cluster_name
+        end
+
+        unless exists
+          puts "Creating ElastiCache cluster #{cluster_name}"
+          body = AWS[:elasticache].create_cache_cluster(cluster_name, params).body
+        else
+          puts "Elasticache cluster #{cluster_name} already exists. Skipping"
+        end
+
       end
     end
 

@@ -99,12 +99,45 @@
           "region": "us-east-1",
           "ec2_security_groups": ["default"]
         }
-      } 
+      },
+      "elasticache": {
+        "default": {
+          "region": "us-east-1",
+          "ec2_security_groups": ["default"]
+        }
+      }
     }, 
     "s3": { 
       "test": { 
           "region": "us-east-1"
       }
-   } 
+   },
+    "elasticache": {
+      "cachename": {
+        "node_type": "cache.m1.large",
+        "nodes": 2,
+        "port": 11211,
+        "availability_zone": "us-east-1b",
+        "security_groups": ["default"]
+      }
+    },
+   "cloud_watch": {
+     "metric_alarms": {
+       "alarmname": {
+         "region": "us-east-1",
+         "description": "CPU over 70%",
+         "comparison": "GreaterThanOrEqualToThreshold",
+         "evaluation_period": 1,
+         "metric_name": "CPUUtilization",
+         "namespace": "AWS/EC2",
+         "period": 60,
+         "statistic": "Average",
+         "threshold": 70,
+         "unit": "Percent",
+         "dimensions": {
+           "ec2": ["app-1"]
+         }
+     }
+   }
   }
 }
