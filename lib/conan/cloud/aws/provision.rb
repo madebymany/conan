@@ -2,52 +2,60 @@ require "fileutils"
 require "fog"
 require "json"
 
-module AWS
-  class Provision
+require_relative "./utils"
+require_relative "./security_group"
 
-    def initialize(aws_config = {}, stage = 'production')
+module AWS
+
+  class Provision
+  include Utils
+
+    attr_accessor :aws_config, :stage, :application
+
+    def initialize(stage = 'production', aws_config = {}, application = nil)
       @aws_config = aws_config
       @stage = stage
+      @application = application
     end
 
-    def describe_env_to_json(file_path)
-      servers_json = {}
+    def describe_env(filter_role = nil)
+      server_config = {}
       servers = []
-      ["us-east-1", "us-west-1", "eu-west-1", "ap-southeast-1", "ap-northeast-1"].each do |region|
+      all_regions.each do |region|
         compute = Fog::Compute.new(:provider => :aws, :region => region)
         compute.servers.all.each { |s| servers << s if s.state == 'running' }
       end
       stages = servers.map {|s| s.tags["stage"] }.uniq
 
-      stages.each do | stage|
-        servers_json[stage] = {}
+      stages.each do | st|
+        server_config[st] = {}
         servers.each do |server|
-          if server.tags["stage"] == stage
-            server_json = {}
-            server_json[:roles] = server.tags["roles"].split(", ") unless server.tags["roles"].nil?
-            server_json[:alias] = server.tags["name"]
-            servers_json[stage][server.dns_name] = server_json
+          if server.tags["stage"] == st
+            config = {}
+            config["roles"] = server.tags["roles"].split(", ") unless server.tags["roles"].nil?
+            config["alias"] = server.tags["name"]
+            if filter_role.nil? || config["roles"].include?(filter_role) 
+              server_config[st][server.dns_name] = config
+            end
           end 
         end
       end
+      server_config
 
-      File.open(file_path, "w") do |io|
-        io << JSON.pretty_generate(servers_json)
-      end
     end
     
-    def build_env()
+    def build_env
 
       #we need to check the existance of ~/.fog
 
       #first key_pairs
-      key_pairs = @aws_config["key_pairs"]
+      key_pairs = aws_config["key_pairs"]
 
       key_pairs.each do |name, conf|
         create_key_pair(name, conf)
       end unless key_pairs.nil?
 
-      security_groups = @aws_config["security"]
+      security_groups = aws_config["security"]
 
       if security_groups.nil? or security_groups.size == 0
         create_default_security_groups()
@@ -65,7 +73,7 @@ module AWS
         end unless security_groups["elasticache"].nil?
       end
 
-      @aws_config.each do |type, resources|
+      aws_config.each do |type, resources|
          case type
          when "ec2"
            resources.each do |name, conf|
@@ -83,7 +91,6 @@ module AWS
            resources.each do |name,conf|
              create_elb(name, conf)
            end
-         end
          when "elasticache"
            resources.each do |name,conf|
              create_elasticache_cluster(name,conf)
@@ -125,15 +132,22 @@ module AWS
 
       compute = Fog::Compute.new(:provider => :aws, :region => region)
 
-      sg_name = "#{@stage}-#{name}"
+      sg_name = ec2_name_tag(name)
 
       sg = compute.security_groups.get(sg_name)
       if sg.nil?
         puts "Creating EC2 Secruity Group #{sg_name}"
-        sg = compute.security_groups.create(:name => sg_name, :description => "#{name} Security Group for #{@stage}")
-        new_conf[:ports].each do |port|
-          sg.authorize_port_range(Range.new(port.to_i,port.to_i))
-        end unless new_conf[:ports].nil?
+        sg = compute.security_groups.create(:name => sg_name, :description => "#{name} Security Group for #{stage}")
+        new_conf[:ingress].each do |ingress|
+          ingress = ingress.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo} 
+          port = ingress.delete(:port)
+          if ingress[:group_name]
+            ingress[:group_name] = ec2_name_tag(ingress[:group_name]) 
+            sg.authorize_ip_permission(Range.new(port.to_i,port.to_i),ingress)
+          else
+            sg.authorize_port_range(Range.new(port.to_i,port.to_i),ingress)
+          end
+        end unless new_conf[:ingress].nil?
       else
         puts "EC2 Security Group #{sg_name} already exists. Skipping"
       end
@@ -146,15 +160,15 @@ module AWS
         region = new_conf[:region] || "us-east-1"
         rds = Fog::AWS::RDS.new(:region => region)
 
-        rdssg_name = "#{@stage}-db-#{name}"
+        rdssg_name = rds_name_tag(name)
 
         rdssg = rds.security_groups.get(rdssg_name)
 
         if rdssg.nil?
           puts "Creating RDS Security Group #{rdssg_name}"
-          rdssg = rds.security_groups.create(:id => rdssg_name, :description => "#{name} DB Security Group For #{@stage}")
+          rdssg = rds.security_groups.create(:id => rdssg_name, :description => "#{name} DB Security Group For #{stage}")
           new_conf[:ec2_security_groups].each do |ec2_group|
-            rdssg.authorize_ec2_security_group("#{@stage}-#{ec2_group}")
+            rdssg.authorize_ec2_security_group("#{stage}-#{ec2_group}")
           end
         else
           puts "RDS Security Group #{rdssg_name} already exists. Skipping"
@@ -169,20 +183,20 @@ module AWS
         region = new_conf[:region] || "us-east-1"
         elasticache = Fog::AWS::Elasticache.new(:region => region)
 
-        cache_sg_name = "#{@stage}-elasticache-#{name}"
+        cache_sg_name = elasticache_name_tag(name)
 
         sg_exists = false
         body = elasticache.describe_cache_security_groups.body
-        body['CacheSecurityGroups'].any? do |group|
+        sg_exists = body['CacheSecurityGroups'].any? do |group|
           group['CacheSecurityGroupName'] == cache_sg_name
         end
 
         unless sg_exists
           puts "Creating Elasticache Security Group #{cache_sg_name}"
-          body = AWS[:elasticache].create_cache_security_group(cache_sg_name, "#{cache_sg_name} ElastiCache Security Group for #{@stage}").body
+          body = elasticache.create_cache_security_group(cache_sg_name, "#{cache_sg_name} ElastiCache Security Group for #{stage}").body
           new_conf[:ec2_security_groups].each do |ec2_group|
             compute = Fog::Compute.new(:provider => :aws, :region => region)
-            sg_name = "#{@stage}-#{ec2_group}"
+            sg_name = ec2_name_tag(ec2_group)
             sg = compute.security_groups.get(sg_name)
             body = elasticache.authorize_cache_security_group_ingress(
               cache_sg_name, sg.name, sg.owner_id).body
@@ -200,12 +214,14 @@ module AWS
 
       storage = Fog::Storage.new(:provider => :aws, :region => region)
 
+      new_conf['LocationConstraint'] = new_conf.delete(:location_constraint) if new_conf[:location_constraint]
+
       begin
         bucket = storage.get_bucket(name)
         puts "S3 Bucket #{name} already exists. Skipping"
       rescue Excon::Errors::NotFound
         puts "Creating S3 Bucket #{name}"
-        storage.put_bucket(name)
+        storage.put_bucket(name, new_conf)
 
         acl = new_conf[:acl] || 'public-read'
 
@@ -221,7 +237,7 @@ module AWS
 
       zones = new_conf[:availability_zones] || all_availability_zones(region)
 
-      elb_name = "#{@stage}-#{name}"
+      elb_name = ec2_name_tag(name)
 
       lb = elb.load_balancers.get(elb_name)
       if lb.nil?
@@ -233,9 +249,9 @@ module AWS
       
         compute = Fog::Compute.new(:provider => :aws, :region => region)
 
-        inst_servers = new_conf[:servers].map { |s| "#{@stage}-#{s}" } unless new_conf[:servers].nil?
+        inst_servers = new_conf[:servers].map { |s| ec2_name_tag(s) } unless new_conf[:servers].nil?
 
-        compute.servers.all.each do |server|
+        list_stage_servers(region).each do |server|
           #the mocking seems wrong
           unless Fog.mocking?
             name = server.tags["name"]
@@ -253,7 +269,6 @@ module AWS
       region = new_conf[:region] || "us-east-1"
 
       compute = Fog::Compute.new(:provider => :aws, :region => region)
-
       default_key_name = compute.key_pairs.all.first.name
 
       default_params = { :availability_zone => default_availability_zone(region), 
@@ -268,32 +283,31 @@ module AWS
 
       tags  = {}
 
-      #need to bork if no name in config file
-      ec2_name = "#{@stage}-#{name}"
-
       #need to parse all servers to see if this one exists
-      servers = compute.servers.all
-      server_exists = false
-      servers.each { |server| server_exists = true if server.tags["name"] == ec2_name and server.state == 'running' }
+      server = find_server_by_name(name, region)
 
-      unless server_exists
+      #need to bork if no name in config file
+      ec2_name = ec2_name_tag(name)
+
+      unless server
         puts "Creating EC2 Server named #{ec2_name}"
         tags[:name] = ec2_name
-        tags[:stage] = @stage
+        tags[:Name] = ec2_name
+        tags[:stage] = stage
 
         if new_conf[:roles] 
-          new_conf[:roles] << @stage unless new_conf[:roles].include? @stage 
+          new_conf[:roles] << stage unless new_conf[:roles].include? stage 
           tags[:roles] = new_conf[:roles].join(', ')
         else
-          tags[:roles] = "app, db, #{@stage}"
+          tags[:roles] = "app, db, #{stage}"
         end
 
         params[:tags] = tags
 
         if new_conf[:groups] and new_conf[:groups].size > 0
-          params[:groups] = new_conf[:groups].collect { |g| "#{@stage}-#{g}" }
+          params[:groups] = new_conf[:groups].collect { |g| "#{stage}-#{g}" }
         else
-          params[:groups] = ["#{@stage}-default"]
+          params[:groups] = ["#{stage}-default"]
         end
 
         server = compute.servers.create(params)
@@ -321,12 +335,14 @@ module AWS
                          }
         params = default_params.merge(new_conf)
 
-        params[:id] = "#{@stage}-#{name}"
+        params[:id] = ec2_name_tag(name)
+
+        params.delete(:availability_zone) if params[:multi_az]
 
         if new_conf[:db_security_groups] and new_conf[:db_security_groups].size > 0
-          params[:db_security_groups] = new_conf[:db_security_groups].collect { |g| "#{@stage}-db-#{g}" }
+          params[:security_group_names] = new_conf[:db_security_groups].collect { |g| rds_name_tag(g) }
         else
-          params[:db_security_groups] = ["#{@stage}-db-default"]
+          params[:security_group_names] = [rds_name_tag('default')]
         end
 
         server = rds.servers.get(params[:id])
@@ -349,30 +365,29 @@ module AWS
 
         elasticache = Fog::AWS::Elasticache.new(:region => region)
 
-        default_params = { :node_type=> "cache.m1.large", 
-                           :nodes => 1,
-                           :port=> 11211, 
-                           :availability_zone => default_availability_zone(region) 
+        default_params = { :node_type => "cache.m1.large", 
+                           :num_nodes => 1,
+                           :port => 11211, 
+                           :preferred_availability_zone => default_availability_zone(region) 
                          }
 
         params = default_params.merge(new_conf)
 
         if new_conf[:security_groups] and new_conf[:security_groups].size > 0
-          params[:security_groups] = new_conf[:security_groups].collect { |g| "#{@stage}-elasticache-#{g}" }
+          params[:security_group_names] = new_conf[:security_groups].collect { |g| elasticache_name_tag(g)  }
         else
-          params[:security_groups] = ["#{@stage}-elasticache-default"]
+          params[:security_group_names] = [elasticache_name_tag('default')]
         end
 
-        cluster_name = "#{@stage}-#{name}"
+        cluster_name = ec2_name_tag(name) 
 
-        body = AWS[:elasticache].describe_cache_clusters.body
-        exists = body['CacheClusters'].any? do |cluster|
-          cluster['CacheClusterId'] == cluster_name
-        end
+        cl = elasticache.clusters.get(cluster_name)
 
-        unless exists
+        unless cl
           puts "Creating ElastiCache cluster #{cluster_name}"
-          body = AWS[:elasticache].create_cache_cluster(cluster_name, params).body
+          params[:id] = cluster_name
+          cl = elasticache.clusters.new(params)
+          cl.save
         else
           puts "Elasticache cluster #{cluster_name} already exists. Skipping"
         end
@@ -380,42 +395,6 @@ module AWS
       end
     end
 
-    private
-
-    def default_availability_zone(region)
-      #using availability zone b by default as a is often unavailable in us-east-1
-      "#{region}b"
-    end
-
-    def all_availability_zones(region)
-      case region
-      when "us-east-1"
-        #not using availability zone us-east-1a as it often fails
-        ["us-east-1b", "us-east-1c"]
-      when "us-west-1"
-        ["us-west-1a", "us-west-1b", "us-west-1c"]
-      when "eu-west-1"
-        ["eu-west-1a", "eu-west-1b"]
-      when "ap-northeast-1"
-        ["ap-northeast-1a", "ap-northeast-1a"]
-      when "ap-southeast-1"
-        ["ap-southeast-1a", "ap-southeast-1b"]
-      end
-    end
-
-    def default_image_id(region, flavor_id, root_device_type)
-      arch = ["m1.small", "t1.micro", "c1.medium"].include?(flavor_id) ? "32-bit" : "64-bit"
-
-      defaults = JSON.parse(File.read(File.expand_path(File.join(File.dirname(__FILE__), 'default_amis.json'))))
-      
-      region_defaults = defaults["ubuntu 10.04"][region]
-      raise "Invalid Region" if region_defaults.nil?
-      default_ami = region_defaults[arch][root_device_type]
-
-      raise "Default AMI not found for #{region} #{flavor_id} #{root_device_type}" if default_ami.nil?
-      default_ami
-
-    end
   end
 end
 

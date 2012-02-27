@@ -1,0 +1,15 @@
+{
+  "staging": {
+    "launch-config": {
+      "lcname": {
+        "server_to_image": "app1",
+        "image_id": "ORTHIS",
+        "flavor_id": "c1.xlarge",
+        "instance_monitoring": true
+        "key_name": "keyname",
+        "autoscale_groups": [""],
+        "security_groups": ["default"]
+      }
+    }
+  }
+}

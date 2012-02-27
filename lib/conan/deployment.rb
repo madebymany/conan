@@ -31,12 +31,11 @@ module Conan
 
       def add_role(*roles)
         roles = Hash.new{ |h,k| h[k] = [] }
-
         server_config.each do |s, c|
           c["roles"].each do |r|
             roles[r.to_sym] << s
           end
-        end
+        end unless server_config.nil?
 
         roles.each do |r, ss|
           next unless roles.include?(r)

@@ -18,7 +18,6 @@ namespace :chef do
       cache[host] ||= `ssh #{host} ifconfig`[/inet addr:(10\.\d+\.\d+\.\d+)/, 1]
       aliases[config["alias"]] = cache[host]
     end
-
     FileUtils.mkdir_p File.dirname(cache_path)
     File.open(cache_path, "w") do |io|
       io << JSON.dump(cache)

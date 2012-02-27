@@ -115,9 +115,9 @@
     "elasticache": {
       "cachename": {
         "node_type": "cache.m1.large",
-        "nodes": 2,
+        "num_nodes": 2,
         "port": 11211,
-        "availability_zone": "us-east-1b",
+        "preferred_availablility_zone": "us-east-1b",
         "security_groups": ["default"]
       }
     },

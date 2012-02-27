@@ -1,5 +1,14 @@
 require "json"
-set :server_config, JSON.parse(File.read("config/servers.json"))[stage] || {}
+
+if File.exists?("config/servers.json")
+  set :server_config, JSON.parse(File.read("config/servers.json"))[stage] || {}
+else
+  if File.exists?("config/aws.json")
+    set :server_config, AWS::Provision.new.describe_env(application)[stage]
+  else
+    set :server_config, {}
+  end
+end
 
 add_role :app, :db
 
