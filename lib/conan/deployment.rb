@@ -40,7 +40,7 @@ module Conan
         roles.each do |r, ss|
           next unless roles.include?(r)
           ss.each_with_index do |s, i|
-            role r, s, :primary => (i == 0)
+            role r, s, :primary => (i == 0), :no_release => !roles[:app].include?(s)
           end
         end
       end

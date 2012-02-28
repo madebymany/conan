@@ -56,7 +56,7 @@ module AWS
       when "us-west-1"
         ["us-west-1a", "us-west-1b", "us-west-1c"]
       when "eu-west-1"
-        ["eu-west-1a", "eu-west-1b"]
+        ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
       when "ap-northeast-1"
         ["ap-northeast-1a", "ap-northeast-1a"]
       when "ap-southeast-1"

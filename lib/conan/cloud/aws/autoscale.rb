@@ -48,41 +48,43 @@ module AWS
       region = new_conf[:region] || "us-east-1"
 
       compute = Fog::Compute.new(:provider => :aws, :region => region)
-      default_key_name = compute.key_pairs.all.first.name
 
-      default_params = { :instance_monitoring => true,
-                         :instance_type => "m1.small",
-                         :key_name => default_key_name
-                       }
-
-      params = default_params.merge(new_conf)
+      params = {}
+      params['KeyName'] = new_conf[:key_name] || compute.key_pairs.all.first.name
 
       if new_conf[:security_groups] and new_conf[:security_groups].size > 0
-        params[:security_groups] = new_conf[:security_groups].collect { |g| "#{stage}-#{g}" }
+        params['SecurityGroups'] = new_conf[:security_groups].collect { |g| "#{stage}-#{g}" }
       else
-        params[:security_groups] = ["#{stage}-default"]
+        params['SecurityGroups'] = ["#{stage}-default"]
       end
 
-      if params[:server_to_image].nil?
-        params[:image_id] = default_image_id(region, params[:flavor_id], params[:root_device_type]) if params[:image_id].nil?
+      instance_type = new_conf.delete(:instance_type) || "m1.small"
+
+      if new_conf[:server_to_image].nil?
+        if new_conf[:image_id].nil?
+          image_id = default_image_id(region, instance_type, new_conf[:root_device_type]) 
+        else
+          image_id = new_conf[:image_id]
+        end
       else
-        params[:image_id] = create_ami_from_server(params[:server_to_image], region)      end
+        image_id = create_ami_from_server(new_conf[:server_to_image], region)      
+      end
 
       autoscale = Fog::AWS::AutoScaling.new(:region => region)
 
       #need to create new launchconfiugrations with unique names
       #because you can't modify them and you can't delete them if they are attached
       #to an autoscale group
-      params[:id] = "#{ec2_name_tag(name)}-#{Time.now.strftime('%Y%m%d%H%M')}"
+      id = "#{ec2_name_tag(name)}-#{Time.now.strftime('%Y%m%d%H%M')}"
 
-      puts "Creating Autoscale Launch Configuration #{params[:id]}"
-      lc = autoscale.configurations.create(params)
+      puts "Creating Autoscale Launch Configuration #{id}"
+      lc = autoscale.configurations.connection.create_launch_configuration(image_id, instance_type, id, params)
 
-      params[:autoscale_groups].each do |group_name|
+      new_conf[:autoscale_groups].each do |group_name|
         asg = autoscale.groups.get(group_name)
-        "Setting Autoscale Group #{group_name} to use Launch Configration #{params[:id]}"
-        asg.connection.update_auto_scaling_group(asg.id, {"LaunchConfigurationName" => params[:id]})
-      end unless params[:autoscale_groups].nil?
+        "Setting Autoscale Group #{group_name} to use Launch Configration #{id}"
+        asg.connection.update_auto_scaling_group(asg.id, {"LaunchConfigurationName" => id})
+      end unless new_conf[:autoscale_groups].nil?
 
     end
 

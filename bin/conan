@@ -16,7 +16,7 @@ Commands:
 Options:
 END
 
-settings = Conan::Settings.new
+settings = {}
 
 opts = ARGV.options{ |o|
   o.banner << " command"
