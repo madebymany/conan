@@ -1,10 +1,10 @@
 require 'rubygems'
-require 'fog/aws/models/compute/security_group'
+# require 'fog/aws/models/compute/security_group'
 
 module Fog
   module Compute
     class AWS
-      class SecurityGroup
+      class SecurityGroup < Fog::Model
         def authorize_ip_permission(port_range, options = {})
           requires :name
 
