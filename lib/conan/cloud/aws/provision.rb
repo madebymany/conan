@@ -246,11 +246,31 @@ module AWS
       if lb.nil?
         puts "Creating Elastic Load Balancer #{elb_name}"
       
-        lb = elb.load_balancers.create(:id => elb_name, :availability_zones => zones)
+        listeners = [];
+        
+        if new_conf[:listeners].nil?
+          list = Fog::AWS[:elb].listeners.new()
+          listeners << { 'Listener' => list.to_params, 'PolicyNames' => [] }
+        else 
+          new_conf[:listeners].each do |listener|
+            listener = listener.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+            list = Fog::AWS[:elb].listeners.new(listener)
+            listeners << { 'Listener' => list.to_params, 'PolicyNames' => [] }
+          end
+        end
       
-        #need to do listeners but for now stick with the default
-      
+        lb = elb.load_balancers.create(:id => elb_name, :availability_zones => zones, 'ListenerDescriptions' => listeners)
+
         compute = Fog::Compute.new(:provider => :aws, :region => region)
+
+        new_conf[:ingress_for].each do |ingress|
+          ingress = ingress.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo} 
+          port = ingress.delete(:port)
+          sg_name = ec2_name_tag(ingress[:group_name]) 
+          sg = compute.security_groups.get(sg_name)
+          lbsgparams = {:group_name => lb.source_group['GroupName'], :user_id => lb.source_group['OwnerAlias']}
+          sg.authorize_ip_permission(Range.new(port.to_i,port.to_i),lbsgparams)
+        end unless new_conf[:ingress_for].nil?
 
         inst_servers = new_conf[:servers].map { |s| ec2_name_tag(s) } unless new_conf[:servers].nil?
 
