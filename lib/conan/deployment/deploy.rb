@@ -44,7 +44,7 @@ namespace :deploy do
     maintenance.start
     update_code
     migrate
-    symlink
+    create_symlink
     restart
     maintenance.stop
   end
