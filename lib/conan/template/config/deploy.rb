@@ -30,6 +30,8 @@ when :staging
 when :production
   set :stage,  "production"
   set :branch, "staging.last-successful-deploy"
+when :ci
+	set :stage, "ci"
 end
 
 # You probably don't need to edit these

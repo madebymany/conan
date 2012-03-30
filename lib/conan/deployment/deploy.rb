@@ -10,7 +10,7 @@ else
   end
 end
 
-add_role :app, :db
+add_role :app, :db, :ci
 
 namespace :deploy do
   task :start, :roles => :app do; end
