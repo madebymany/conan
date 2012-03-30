@@ -49,7 +49,7 @@ module AWS
     
     def build_env
 
-      #we need to check the existance of ~/.fog
+      raise "Settings file at ~/.fog not found" unless File.exists?("#{ENV['HOME']}/.fog")
 
       #first key_pairs
       key_pairs = aws_config["key_pairs"]
