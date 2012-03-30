@@ -1,4 +1,10 @@
 {
+  "ci": {
+    "your-ci.amazonaws.com": {
+      "roles": ["db", "ci"],
+      "alias": "ci"
+    }
+  },
   "staging": {
     "TODO e.g. something.amazonaws.com": {
       "roles": ["app", "db", "staging"],
