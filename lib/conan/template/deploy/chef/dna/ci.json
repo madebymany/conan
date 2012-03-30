@@ -1,1 +1,4 @@
-{}
+{
+	"recipes": ["jenkins"],
+	"rails_app": {}
+}
