@@ -30,6 +30,7 @@ module Conan
       end
 
       def add_role(*roles)
+        puts "=============== #{roles.inspect}"
         roles = Hash.new{ |h,k| h[k] = [] }
         server_config.each do |s, c|
           c["roles"].each do |r|
