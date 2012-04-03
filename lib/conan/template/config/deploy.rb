@@ -22,6 +22,7 @@ set :shared_paths, %w[
 
 task :staging do; end
 task :production do; end
+task :ci do; end
 
 case ARGV.first.to_sym
 when :staging
