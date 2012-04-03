@@ -13,9 +13,9 @@ set :shared_paths, %w[
 ]
 
 
-default_run_options[:pty] = true
-ssh_options[:forward_agent] = true
-ssh_options[:keys] = ["#{ENV['HOME']}/.ssh/keypair-name.pem"]
+# default_run_options[:pty] = true
+# ssh_options[:forward_agent] = true
+# ssh_options[:keys] = ["#{ENV['HOME']}/.ssh/keypair-name.pem"]
 
 # Your stages. The default assumes:
 #
