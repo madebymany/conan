@@ -1,4 +1,4 @@
 {
-	"recipes": ["jenkins"],
+	"recipes": ["mxm_ci::setup"],
 	"rails_app": {}
 }
