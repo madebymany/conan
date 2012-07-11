@@ -65,7 +65,8 @@ module AWS
     end
 
     def default_image_id(region, flavor_id, root_device_type)
-      arch = ["m1.small", "t1.micro", "c1.medium"].include?(flavor_id) ? "32-bit" : "64-bit"
+      #now default to 64 bit architecture as all flavors support 64 bit
+      arch = "64-bit"
 
       defaults = JSON.parse(File.read(File.expand_path(File.join(File.dirname(__FILE__), 'default_amis.json'))))
       

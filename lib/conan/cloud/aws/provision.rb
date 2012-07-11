@@ -30,14 +30,11 @@ module AWS
       stages.each do | st|
         server_config[st] = {}
         servers.each do |server|
-          if server.tags["stage"] == st
+          if server.tags["stage"] == st && !server.tags["roles"].nil?
             config = {}
-            unless server.tags["roles"].nil?
-              config["roles"] = server.tags["roles"].split(", ")
-              config["roles"] = server.tags["roles"].split(":") unless config["roles"].length > 1 
-            end
+            config["roles"] = server.tags["roles"].split /,\s*|:/
             config["alias"] = server.tags["name"]
-            if filter_role.nil? || config["roles"].include?(filter_role) 
+            if filter_role.nil? || config["roles"].include?(filter_role)
               server_config[st][server.dns_name] = config
             end
           end 

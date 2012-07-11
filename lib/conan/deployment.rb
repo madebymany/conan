@@ -29,8 +29,22 @@ module Conan
         system %{git push -f origin tag #{dest}}
       end
 
+
+      def git_log(from, to)
+        run_locally("git log #{real_revision(from)}..#{real_revision(to)}")
+      end
+
+      def real_revision(tag)
+        source.local.query_revision(tag) { |cmd| with_env("LC_ALL", "C") { run_locally(cmd) } }
+      end
+
       def add_role(*roles)
         roles = Hash.new{ |h,k| h[k] = [] }
+
+        #init this manually otherwise we can run into problems where no server has the app role and 
+        #the above initialiser can't run while iterating over it
+        roles[:app] = []
+
         server_config.each do |s, c|
           c["roles"].each do |r|
             roles[r.to_sym] << s
