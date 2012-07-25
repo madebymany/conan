@@ -32,7 +32,7 @@ module AWS
         servers.each do |server|
           if server.tags["stage"] == st && !server.tags["roles"].nil?
             config = {}
-            config["roles"] = server.tags["roles"].split /,\s*|:/
+            config["roles"] = server.tags["roles"].split /,\s*|:/ || []
             config["alias"] = server.tags["name"]
             if filter_role.nil? || config["roles"].include?(filter_role)
               server_config[st][server.dns_name] = config
