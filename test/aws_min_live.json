@@ -1,0 +1,31 @@
+{
+  "staging": {
+    "key_pairs": { 
+     "keypair-name": {}
+    },
+    "ec2": {
+      "app1": {}
+    },
+    "rds": {
+      "db1": {}
+    }, 
+    "s3": {
+      "conantestbrothers-staging": {}
+    } 
+  },
+  "production": {
+    "ec2": { 
+        "app1": {},
+        "app2": {}
+    },
+    "rds": {
+      "db1": {}
+    },
+    "elb": {
+       "lb1": {}
+    },
+    "s3": {
+      "conantestsisters_production": {}
+    }
+  }
+}
