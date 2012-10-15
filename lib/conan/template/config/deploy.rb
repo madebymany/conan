@@ -29,7 +29,7 @@ when :staging
   set :branch, "master"
 when :production
   set :stage,  "production"
-  set :branch, "staging.last-successful-deploy"
+  set :branch, "staging.#{application}.last-successful-deploy"
 end
 
 # You probably don't need to edit these
