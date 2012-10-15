@@ -50,4 +50,13 @@ unless Conan::VERSION == "{{VERSION}}"
   $stderr.puts "Warning: Conan version mismatch."
 end
 
+# Edit your ~/.fog file so it contains:
+#
+# {{APPLICATION}}:
+#   :aws_access_key_id: ...
+#   :aws_secret_access_key: ...
+#
+require 'fog'
+Fog.credential = application.to_sym
+
 require "conan/capistrano"
