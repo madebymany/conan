@@ -82,8 +82,8 @@ module AWS
 
       new_conf[:autoscale_groups].each do |group_name|
         asg = autoscale.groups.get(group_name)
-        "Setting Autoscale Group #{group_name} to use Launch Configration #{id}"
-        asg.connection.update_auto_scaling_group(asg.id, {"LaunchConfigurationName" => id})
+        puts "Setting Autoscale Group #{group_name} to use Launch Configration #{id}"
+        asg.connection.update_auto_scaling_group(group_name, {"LaunchConfigurationName" => id})
       end unless new_conf[:autoscale_groups].nil?
 
     end
