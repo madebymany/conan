@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/madebymany/conan"
   s.summary     = "Conan The Deployer"
   s.description = "Set up a project to enable the provision of infrastructure through AWS and the configuration of servers using Chef via Capistrano."
-  s.add_dependency "json", "~> 1.6.1"
+  s.add_dependency "json", ">= 1.6.1"
   s.add_dependency "capistrano", "~> 2.12.0"
   s.add_dependency "fog"
   s.executables  = ["conan"]
