@@ -31,7 +31,13 @@ module Conan
 
 
       def git_log(from, to)
-        run_locally("git log #{real_revision(from)}..#{real_revision(to)}")
+       begin  
+          run_locally("git log #{real_revision(from)}..#{real_revision(to)}")
+       rescue RuntimeError
+          #runtime error probably means there is no initial tag and no deploys have been done
+          return run_locally("git log #{real_revision(to)}")
+       end
+
       end
 
       def real_revision(tag)
