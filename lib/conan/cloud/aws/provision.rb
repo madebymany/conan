@@ -162,7 +162,11 @@ module AWS
 
         rdssg_name = rds_name_tag(name)
 
-        rdssg = rds.security_groups.get(rdssg_name)
+        rdssg = begin
+                  rds.security_groups.get(rdssg_name)
+                rescue Excon::Errors::NotFound
+                  nil
+                end
 
         if rdssg.nil?
           puts "Creating RDS Security Group #{rdssg_name}"
@@ -239,7 +243,12 @@ module AWS
 
       elb_name = ec2_name_tag(name)
 
-      lb = elb.load_balancers.get(elb_name)
+      lb = begin
+             elb.load_balancers.get(elb_name)
+           rescue Excon::Errors::BadRequest, Excon::Errors::NotFound
+             nil
+           end
+
       if lb.nil?
         puts "Creating Elastic Load Balancer #{elb_name}"
       
@@ -365,7 +374,11 @@ module AWS
           params[:security_group_names] = [rds_name_tag('default')]
         end
 
-        server = rds.servers.get(params[:id])
+        server = begin
+                   rds.servers.get(params[:id])
+                 rescue Excon::Errors::NotFound
+                   nil
+                 end
 
         if server.nil?
           puts "Creating RDS Server #{params[:id]}"
@@ -401,7 +414,11 @@ module AWS
 
         cluster_name = ec2_name_tag(name) 
 
-        cl = elasticache.clusters.get(cluster_name)
+        cl = begin
+               elasticache.clusters.get(cluster_name)
+             rescue Excon::Errors::NotFound
+               nil
+             end
 
         unless cl
           puts "Creating ElastiCache cluster #{cluster_name}"
