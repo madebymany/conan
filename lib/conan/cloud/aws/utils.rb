@@ -52,7 +52,7 @@ module AWS
       case region
       when "us-east-1"
         #not using availability zone us-east-1a as it often fails
-        ["us-east-1b", "us-east-1c"]
+        ["us-east-1b", "us-east-1d"]
       when "us-west-1"
         ["us-west-1a", "us-west-1b", "us-west-1c"]
       when "eu-west-1"
