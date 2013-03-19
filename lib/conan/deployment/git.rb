@@ -6,6 +6,7 @@ namespace :git do
 
   before "git:tag_attempted_deploy", "git:deploy_commits"  unless deploy_via == :copy
   task :deploy_commits do
+    run_locally "git fetch origin --tags"
     logs = git_log("#{stage}.#{application}.last-successful-deploy", branch)
     puts "the following new commits for #{application} on #{stage} revision #{real_revision(branch)} will be deployed"
     puts logs
