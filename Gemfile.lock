@@ -1,14 +1,21 @@
+PATH
+  remote: .
+  specs:
+    conan (0.4.10)
+      capistrano
+      fog
+
 GEM
   remote: https://rubygems.org/
   specs:
     builder (3.2.0)
-    capistrano (2.9.0)
+    capistrano (2.14.1)
       highline
       net-scp (>= 1.0.0)
       net-sftp (>= 2.0.0)
       net-ssh (>= 2.0.14)
       net-ssh-gateway (>= 1.1.0)
-    excon (0.20.0)
+    excon (0.20.1)
     fog (1.10.0)
       builder
       excon (~> 0.14)
@@ -20,17 +27,16 @@ GEM
       nokogiri (~> 1.5.0)
       ruby-hmac
     formatador (0.2.4)
-    highline (1.6.11)
-    json (1.7.5)
+    highline (1.6.16)
     mime-types (1.21)
     multi_json (1.7.1)
     net-scp (1.1.0)
       net-ssh (>= 2.6.5)
-    net-sftp (2.0.5)
-      net-ssh (>= 2.0.9)
+    net-sftp (2.1.1)
+      net-ssh (>= 2.6.5)
     net-ssh (2.6.6)
-    net-ssh-gateway (1.1.0)
-      net-ssh (>= 1.99.1)
+    net-ssh-gateway (1.2.0)
+      net-ssh (>= 2.6.5)
     nokogiri (1.5.7)
     ruby-hmac (0.4.0)
 
@@ -38,6 +44,4 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  capistrano
-  fog
-  json
+  conan!
