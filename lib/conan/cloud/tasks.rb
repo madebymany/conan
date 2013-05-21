@@ -41,5 +41,10 @@ namespace :aws do
     AWS::Autoscale.new(stage, autoscale_config, application).update_autoscale
   end
 
+  desc "create a test instance from an autoscale image after a deployment"
+  task :test_autoscale do
+    autoscale_config = JSON.parse(File.read("config/autoscale.json"))[stage] || {}
+    AWS::Autoscale.new(stage, autoscale_config, application).launch_test_instances
+  end
 end
 

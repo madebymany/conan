@@ -67,7 +67,7 @@ module AWS
           image_id = new_conf[:image_id]
         end
       else
-        image_id = create_ami_from_server(new_conf[:server_to_image], region)      
+        image_id = create_ami_from_server(new_conf[:server_to_image], region)
       end
 
       autoscale = Fog::AWS::AutoScaling.new(:region => region)
@@ -100,6 +100,54 @@ module AWS
            end
          end
       end
+    end
+
+    def launch_test_instances
+      autoscale_config.each do |type, resources|
+         case type
+         when "launch-config"
+           resources.each do |name, conf|
+             start_test_server(name, conf)
+           end
+         end
+      end
+    end
+
+    def start_test_server(name, config = {})
+      new_conf = config.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+      region = new_conf[:region] || "us-east-1"
+
+      compute = Fog::Compute.new(:provider => :aws, :region => region)
+
+      autoscale = Fog::AWS::AutoScaling.new(:region => region)
+      asres = autoscale.describe_auto_scaling_groups({'AutoScalingGroupNames' => new_conf[:autoscale_groups]})
+      lcname = ""
+      #so aws APIs sometimes return a blank scaling group????? need to check if there is a LC
+      asres.body["DescribeAutoScalingGroupsResult"]["AutoScalingGroups"].each do |asgroup|
+        lcname = asgroup["LaunchConfigurationName"]
+        break if !lcname.nil? && lcname.length > 0
+      end
+
+      lcres = autoscale.describe_launch_configurations({'LaunchConfigurationNames' => [lcname]})
+      lc = lcres.body["DescribeLaunchConfigurationsResult"]["LaunchConfigurations"][0]
+
+      compute = Fog::Compute.new(:provider => :aws, :region => region)
+      server_params = {}
+      server_params[:groups] = lc["SecurityGroups"]
+      server_params[:key_name] = lc["KeyName"]
+      server_params[:image_id] = lc["ImageId"]
+      server_params[:monitoring] = false
+      server_params[:flavor_id] = lc["InstanceType"]
+      server_params[:root_device_type] = "ebs"
+      server_params[:availability_zone] = default_availability_zone(region)
+
+
+      puts "Creating test instance from image for launch configuration #{lcname}"
+      server = compute.servers.create(server_params)
+      server.wait_for { ready? }
+
+      puts "Created server #{server.dns_name} for testing. Please delete manually"
+
     end
 
   end
