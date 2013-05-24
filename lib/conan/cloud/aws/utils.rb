@@ -70,7 +70,8 @@ module AWS
 
       defaults = JSON.parse(File.read(File.expand_path(File.join(File.dirname(__FILE__), 'default_amis.json'))))
       
-      region_defaults = defaults["ubuntu 10.04"][region]
+      #not defaulting to ubuntu 12.04
+      region_defaults = defaults["ubuntu 12.04"][region]
       raise "Invalid Region" if region_defaults.nil?
       default_ami = region_defaults[arch][root_device_type]
 

@@ -70,5 +70,77 @@
         "instance-store": "ami-e00b86d0"
       }
     }
+  },
+  "ubuntu 12.04": {
+    "ap-northeast-1": {
+      "64-bit": {
+        "ebs": "ami-7d43cd7c",
+        "instance-store": "ami-a547c9a4"
+      },
+      "32-bit": {
+        "ebs": "ami-7b43cd7a",
+        "instance-store": "ami-fd4ac4fc"
+      }
+    },
+    "ap-southeast-1": {
+      "64-bit": {
+        "ebs": "ami-e40846b6",
+        "instance-store": "ami-fa0846a8"
+      },
+      "32-bit": {
+        "ebs": "ami-e60846b4",
+        "instance-store": "ami-44084616"
+      }
+    },
+    "eu-west-1": {
+      "64-bit": {
+        "ebs": "ami-7b62730f",
+        "instance-store": "ami-7b63720f"
+      },
+      "32-bit": {
+        "ebs": "ami-7962730d",
+        "instance-store": "ami-ab6170df"
+      }
+    },
+    "sa-east-1": {
+      "64-bit": {
+        "ebs": "ami-0c76ac11",
+        "instance-store": "ami-e071abfd"
+      },
+      "32-bit": {
+        "ebs": "ami-1076ac0d",
+        "instance-store": "ami-ac71abb1"
+      }
+    },
+    "us-east-1": {
+      "64-bit": {
+        "ebs": "ami-79c0ae10",
+        "instance-store": "ami-91c5abf8"
+      },
+      "32-bit": {
+        "ebs": "ami-67c0ae0e",
+        "instance-store": "ami-cdc6a8a4"
+      }
+    },
+    "us-west-1": {
+      "64-bit": {
+        "ebs": "ami-69b59a2c",
+        "instance-store": "ami-b5b699f0"
+      },
+      "32-bit": {
+        "ebs": "ami-67c0ae0e",
+        "instance-store": "ami-3db69978"
+      }
+    },
+    "us-west-2": {
+      "64-bit": {
+        "ebs": "ami-773caa47",
+        "instance-store": "ami-f33fa9c3"
+      },
+      "32-bit": {
+        "ebs": "ami-753caa45",
+        "instance-store": "ami-2b3fa91b"
+      }
+    }
   }
 }
