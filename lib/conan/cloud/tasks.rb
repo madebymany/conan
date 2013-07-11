@@ -2,7 +2,8 @@ require "fileutils"
 require "json"
 
 namespace :aws do
-
+  
+  desc "create a test instance from an autoscale image after a deployment"
   task :provision do
     aws_config = JSON.parse(File.read("config/aws.json"))[stage] || {}
     AWS::Provision.new(stage, aws_config, application).build_env
